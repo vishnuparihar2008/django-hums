@@ -33,12 +33,12 @@ function activate(context) {
                 player.play(audioPath, (err) => {
                     if (err) {
                         vscode.window.showErrorMessage(
-                            `🎵 Django Unchained: Couldn't play audio — ${err.message}`
+                            `Django Unchained: Couldn't play audio — ${err.message}`
                         );
                     }
                 });
 
-                break; // no need to check other changes in this event
+                break;
 			}
 		}
 	});
