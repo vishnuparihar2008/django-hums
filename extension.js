@@ -2,26 +2,45 @@
 // Import the module and reference it with the alias vscode in your code below
 const vscode = require('vscode');
 
-// This method is called when your extension is activated
-// Your extension is activated the very first time the command is executed
+const path   = require('path');					// to import django_unchained.mp3
+const player = require('play-sound')({});		// to play django_unchained.mp3
 
-/**
- * @param {vscode.ExtensionContext} context
- */
+const COOLDOWN_MS = 8000; // prevents replaying every keystroke
+let lastPlayed = 0;
+
 function activate(context) {
+	const disposable = vscode.workspace.onDidChangeTextDocument((event) => {
+		// Only care about .py files
+        if (event.document.languageId !== 'python') return;
 
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
-	console.log('Congratulations, your extension "django-hums" is now active!');
+		 for (const change of event.contentChanges) {
+            const lineIndex = change.range.start.line;
+            const lineText  = event.document.lineAt(lineIndex).text.trim();
 
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with  registerCommand
-	// The commandId parameter must match the command field in package.json
-	const disposable = vscode.commands.registerCommand('django-hums.helloWorld', function () {
-		// The code you place here will be executed every time your command is executed
+            // Exact match — fires when the line reads exactly "import django"
+            if (lineText === 'import django') {
+                const now = Date.now();
+                if (now - lastPlayed < COOLDOWN_MS) break; // cooldown guard
+				
+				lastPlayed = now;
 
-		// Display a message box to the user
-		vscode.window.showInformationMessage('Hello World from django-hums!');
+                const audioPath = path.join(
+                    context.extensionPath,
+                    'media',
+                    'django_unchained.mp3'
+                );
+
+                player.play(audioPath, (err) => {
+                    if (err) {
+                        vscode.window.showErrorMessage(
+                            `🎵 Django Unchained: Couldn't play audio — ${err.message}`
+                        );
+                    }
+                });
+
+                break; // no need to check other changes in this event
+			}
+		}
 	});
 
 	context.subscriptions.push(disposable);
