@@ -8,6 +8,8 @@ const player = require('play-sound')({});		// to play django_unchained.mp3
 const COOLDOWN_MS = 8000; // prevents replaying every keystroke
 let lastPlayed = 0;
 
+const DJANGO_IMPORT_RE = /^\s*(import django\b|from django(\.[\w.]+)?\s+import)/;
+
 function activate(context) {
 	const disposable = vscode.workspace.onDidChangeTextDocument((event) => {
 		// Only care about .py files
@@ -17,8 +19,8 @@ function activate(context) {
             const lineIndex = change.range.start.line;
             const lineText  = event.document.lineAt(lineIndex).text.trim();
 
-            // Exact match — fires when the line reads exactly "import django"
-            if (lineText === 'import django') {
+            // on importing django in any form
+            if (DJANGO_IMPORT_RE.test(lineText)) {
                 const now = Date.now();
                 if (now - lastPlayed < COOLDOWN_MS) break; // cooldown guard
 				
