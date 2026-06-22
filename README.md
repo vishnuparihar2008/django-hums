@@ -1,4 +1,4 @@
-# 🎵 django-hums
+# 🎵 Django Hums
 A chaotic little VS Code extension written in JavaScript that **plays the Django Unchained theme** whenever you write a Django import in Python.
 
 ---
